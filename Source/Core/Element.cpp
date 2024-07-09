@@ -434,9 +434,6 @@ void Element::SetScrollableOverflowRectangle(Vector2f _scrollable_overflow_recta
 	if (scrollable_overflow_rectangle != _scrollable_overflow_rectangle)
 	{
 		scrollable_overflow_rectangle = _scrollable_overflow_rectangle;
-
-		scroll_offset.x = Math::Min(scroll_offset.x, GetScrollWidth() - GetClientWidth());
-		scroll_offset.y = Math::Min(scroll_offset.y, GetScrollHeight() - GetClientHeight());
 		DirtyAbsoluteOffset();
 	}
 }
@@ -2905,6 +2902,20 @@ void Element::DirtyFontFaceRecursive()
 	const int num_children = GetNumChildren(true);
 	for (int i = 0; i < num_children; ++i)
 		GetChild(i)->DirtyFontFaceRecursive();
+}
+
+void Element::ClampScrollOffset()
+{
+	scroll_offset.x = Math::Min(scroll_offset.x, GetScrollWidth() - GetClientWidth());
+	scroll_offset.y = Math::Min(scroll_offset.y, GetScrollHeight() - GetClientHeight());
+}
+
+void Element::ClampScrollOffsetRecursive()
+{
+	ClampScrollOffset();
+	const int num_children = GetNumChildren(true);
+	for (int i = 0; i < num_children; ++i)
+		GetChild(i)->ClampScrollOffsetRecursive();
 }
 
 } // namespace Rml

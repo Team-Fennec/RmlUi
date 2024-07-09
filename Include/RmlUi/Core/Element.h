@@ -55,6 +55,7 @@ class ElementDefinition;
 class ElementDocument;
 class ElementScroll;
 class ElementStyle;
+class LayoutEngine;
 class ContainerBox;
 class InlineLevelBox;
 class ReplacedBox;
@@ -692,6 +693,9 @@ private:
 	void OnDpRatioChangeRecursive();
 	void DirtyFontFaceRecursive();
 
+	void ClampScrollOffset();
+	void ClampScrollOffsetRecursive();
+
 	/// Start an animation, replacing any existing animations of the same property name. If start_value is null, the element's current value is used.
 	ElementAnimationList::iterator StartAnimation(PropertyId property_id, const Property* start_value, int num_iterations, bool alternate_direction,
 		float delay, bool initiated_by_animation_property);
@@ -797,6 +801,7 @@ private:
 	friend class Rml::ContainerBox;
 	friend class Rml::InlineLevelBox;
 	friend class Rml::ReplacedBox;
+	friend class Rml::LayoutEngine;
 	friend class Rml::ElementScroll;
 	friend RMLUICORE_API void Rml::ReleaseFontResources();
 };

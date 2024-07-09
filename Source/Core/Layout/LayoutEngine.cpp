@@ -45,6 +45,8 @@ void LayoutEngine::FormatElement(Element* element, Vector2f containing_block)
 	{
 		Log::Message(Log::LT_ERROR, "Error while formatting element: %s", element->GetAddress().c_str());
 	}
+
+	element->ClampScrollOffsetRecursive();
 }
 
 } // namespace Rml
