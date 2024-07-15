@@ -149,8 +149,8 @@ namespace {
 			const CanFocus can_focus = CanFocusElement(child);
 			if (can_focus == CanFocus::Yes)
 			{
-				const Vector2f position = child->GetAbsoluteOffset(BoxArea::Border);
-				const BoundingBox target_box = {position, position + child->GetBox().GetSize(BoxArea::Border)};
+				const Vector2f position = child->GetAbsoluteOffset(Box::Area::BORDER);
+				const BoundingBox target_box = {position, position + child->GetBox().GetSize(Box::Area::BORDER)};
 
 				const int heuristic = GetNavigationHeuristic(bounding_box, target_box, direction);
 				if (heuristic < best_result.heuristic)
@@ -817,7 +817,7 @@ Element* ElementDocument::FindNextNavigationElement(Element* current_element, Na
 {
 	switch (property.unit)
 	{
-	case Unit::STRING:
+	case Property::Unit::STRING:
 	{
 		const PropertySource* source = property.source.get();
 		const String value = property.Get<String>();
@@ -839,7 +839,7 @@ Element* ElementDocument::FindNextNavigationElement(Element* current_element, Na
 		return result;
 	}
 	break;
-	case Unit::KEYWORD:
+	case Property::Unit::KEYWORD:
 	{
 		const bool direction_is_horizontal = (direction == NavigationSearchDirection::Left || direction == NavigationSearchDirection::Right);
 		const bool direction_is_vertical = (direction == NavigationSearchDirection::Up || direction == NavigationSearchDirection::Down);
@@ -867,8 +867,8 @@ Element* ElementDocument::FindNextNavigationElement(Element* current_element, Na
 		return FindNextTabElement(this, direction_is_forward);
 	}
 
-	const Vector2f position = current_element->GetAbsoluteOffset(BoxArea::Border);
-	const BoundingBox bounding_box = {position, position + current_element->GetBox().GetSize(BoxArea::Border)};
+	const Vector2f position = current_element->GetAbsoluteOffset(Box::Area::BORDER);
+	const BoundingBox bounding_box = {position, position + current_element->GetBox().GetSize(Box::Area::BORDER)};
 
 	auto GetNearestScrollContainer = [this](Element* element) -> Element* {
 		for (element = element->GetParentNode(); element; element = element->GetParentNode())

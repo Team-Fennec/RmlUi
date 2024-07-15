@@ -553,7 +553,7 @@ void WidgetDropDown::ProcessEvent(Event& event)
 		auto HasVerticalNavigation = [this](PropertyId id) {
 			if (const Property* p = parent_element->GetProperty(id))
 			{
-				if (p->unit != Unit::KEYWORD)
+				if (p->unit != Property::Unit::KEYWORD)
 					return true;
 				const Style::Nav nav = static_cast<Style::Nav>(p->Get<int>());
 				if (nav == Style::Nav::Auto || nav == Style::Nav::Vertical)
