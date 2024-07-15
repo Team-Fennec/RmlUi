@@ -1036,7 +1036,7 @@ void Context::OnElementDetach(Element* element)
 }
 
 // Internal callback for when a new element gains focus
-bool Context::OnFocusChange(Element* new_focus)
+bool Context::OnFocusChange(Element* new_focus, bool focus_visible)
 {
 	RMLUI_ASSERT(new_focus);
 
@@ -1071,6 +1071,10 @@ bool Context::OnFocusChange(Element* new_focus)
 
 	// Send out blur/focus events.
 	SendEvents(old_chain, new_chain, EventId::Blur, parameters);
+
+	if (focus_visible)
+		parameters["focus_visible"] = true;
+
 	SendEvents(new_chain, old_chain, EventId::Focus, parameters);
 
 	focus = new_focus;

@@ -61,6 +61,7 @@ enum class ShorthandId : uint8_t
 	TransformOrigin,
 	Flex,
 	FlexFlow,
+	Nav,
 
 	NumDefinedIds,
 	FirstCustomId = NumDefinedIds,
@@ -171,6 +172,11 @@ enum class PropertyId : uint8_t
 	FlexShrink,
 	FlexWrap,
 	JustifyContent,
+
+	NavUp,
+	NavRight,
+	NavDown,
+	NavLeft,
 
 	NumDefinedIds,
 	FirstCustomId = NumDefinedIds,

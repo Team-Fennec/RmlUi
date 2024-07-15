@@ -409,33 +409,34 @@ void WidgetTextInput::ProcessEvent(Event& event)
 		bool shift = event.GetParameter< int >("shift_key", 0) > 0;
 		bool ctrl = event.GetParameter< int >("ctrl_key", 0) > 0;
 		bool selection_changed = false;
+		bool out_of_bounds = false;
 
 		switch (key_identifier)
 		{
 		// clang-format off
 		case Input::KI_NUMPAD4: if (numlock) break; //-fallthrough
-		case Input::KI_LEFT:    selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::PreviousWord : CursorMovement::Left, shift); break;
+		case Input::KI_LEFT:    selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::PreviousWord : CursorMovement::Left, shift, out_of_bounds); break;
 
 		case Input::KI_NUMPAD6: if (numlock) break; //-fallthrough
-		case Input::KI_RIGHT:   selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::NextWord : CursorMovement::Right, shift); break;
+		case Input::KI_RIGHT:   selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::NextWord : CursorMovement::Right, shift, out_of_bounds); break;
 
 		case Input::KI_NUMPAD8: if (numlock) break; //-fallthrough
-		case Input::KI_UP:      selection_changed = MoveCursorVertical(-1, shift); break;
+		case Input::KI_UP:      selection_changed = MoveCursorVertical(-1, shift, out_of_bounds); break;
 
 		case Input::KI_NUMPAD2: if (numlock) break; //-fallthrough
-		case Input::KI_DOWN:    selection_changed = MoveCursorVertical(1, shift); break;
+		case Input::KI_DOWN:    selection_changed = MoveCursorVertical(1, shift, out_of_bounds); break;
 
 		case Input::KI_NUMPAD7: if (numlock) break; //-fallthrough
-		case Input::KI_HOME:    selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::Begin : CursorMovement::BeginLine, shift); break;
+		case Input::KI_HOME:    selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::Begin : CursorMovement::BeginLine, shift, out_of_bounds); break;
 
 		case Input::KI_NUMPAD1: if (numlock) break; //-fallthrough
-		case Input::KI_END:     selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::End : CursorMovement::EndLine, shift); break;
+		case Input::KI_END:     selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::End : CursorMovement::EndLine, shift, out_of_bounds); break;
 
 		case Input::KI_NUMPAD9: if (numlock) break; //-fallthrough
-		case Input::KI_PRIOR:   selection_changed = MoveCursorVertical(-int(internal_dimensions.y / parent->GetLineHeight()) + 1, shift); break;
+		case Input::KI_PRIOR:   selection_changed = MoveCursorVertical(-int(internal_dimensions.y / parent->GetLineHeight()) + 1, shift, out_of_bounds); break;
 
 		case Input::KI_NUMPAD3: if (numlock) break; //-fallthrough
-		case Input::KI_NEXT:    selection_changed = MoveCursorVertical(int(internal_dimensions.y / parent->GetLineHeight()) - 1, shift); break;
+		case Input::KI_NEXT:    selection_changed = MoveCursorVertical(int(internal_dimensions.y / parent->GetLineHeight()) - 1, shift, out_of_bounds); break;
 
 		case Input::KI_BACK:
 		{
@@ -509,7 +510,8 @@ void WidgetTextInput::ProcessEvent(Event& event)
 		break;
 		}
 
-		event.StopPropagation();
+		if (!out_of_bounds || selection_changed)
+			event.StopPropagation();
 		if (selection_changed)
 			FormatText();
 	}
@@ -627,10 +629,11 @@ bool WidgetTextInput::AddCharacters(String string)
 // Deletes a character from the string.
 bool WidgetTextInput::DeleteCharacters(CursorMovement direction)
 {
+	bool out_of_bounds;
 	// We set a selection of characters according to direction, and then delete it.
 	// If we already have a selection, we delete that first.
 	if (selection_length <= 0)
-		MoveCursorHorizontal(direction, true);
+		MoveCursorHorizontal(direction, true, out_of_bounds);
 
 	if (selection_length > 0)
 	{
@@ -652,8 +655,9 @@ void WidgetTextInput::CopySelection()
 }
 
 // Moves the cursor along the current line.
-bool WidgetTextInput::MoveCursorHorizontal(CursorMovement movement, bool select)
+bool WidgetTextInput::MoveCursorHorizontal(CursorMovement movement, bool select, bool& out_of_bounds)
 {
+	out_of_bounds = false;
 	const String& value = GetValue();
 
 	int cursor_line_index = 0, cursor_character_index = 0;
@@ -741,7 +745,9 @@ bool WidgetTextInput::MoveCursorHorizontal(CursorMovement movement, bool select)
 		break;
 	}
 
+	const int unclamped_absolute_cursor_index = absolute_cursor_index;
 	absolute_cursor_index = Math::Clamp(absolute_cursor_index, 0, (int)GetValue().size());
+	out_of_bounds = (unclamped_absolute_cursor_index != absolute_cursor_index);
 
 	MoveCursorToCharacterBoundaries(seek_forward);
 	UpdateCursorPosition(true);
@@ -753,20 +759,23 @@ bool WidgetTextInput::MoveCursorHorizontal(CursorMovement movement, bool select)
 }
 
 // Moves the cursor up and down the text field.
-bool WidgetTextInput::MoveCursorVertical(int distance, bool select)
+bool WidgetTextInput::MoveCursorVertical(int distance, bool select, bool& out_of_bounds)
 {
 	int cursor_line_index = 0, cursor_character_index = 0;
+	out_of_bounds = false;
 	GetRelativeCursorIndices(cursor_line_index, cursor_character_index);
 
 	cursor_line_index += distance;
 
 	if (cursor_line_index < 0)
 	{
+		out_of_bounds = true;
 		cursor_line_index = 0;
 		cursor_character_index = 0;
 	}
 	else if (cursor_line_index >= (int)lines.size())
 	{
+		out_of_bounds = true;
 		cursor_line_index = (int)lines.size() - 1;
 		cursor_character_index = (int)lines[cursor_line_index].editable_length;
 	}
