@@ -817,7 +817,7 @@ Element* ElementDocument::FindNextNavigationElement(Element* current_element, Na
 {
 	switch (property.unit)
 	{
-	case Property::Unit::STRING:
+	case Property::STRING:
 	{
 		const PropertySource* source = property.source.get();
 		const String value = property.Get<String>();
@@ -839,7 +839,7 @@ Element* ElementDocument::FindNextNavigationElement(Element* current_element, Na
 		return result;
 	}
 	break;
-	case Property::Unit::KEYWORD:
+	case Property::KEYWORD:
 	{
 		const bool direction_is_horizontal = (direction == NavigationSearchDirection::Left || direction == NavigationSearchDirection::Right);
 		const bool direction_is_vertical = (direction == NavigationSearchDirection::Up || direction == NavigationSearchDirection::Down);
